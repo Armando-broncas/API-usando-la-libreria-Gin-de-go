@@ -1,0 +1,44 @@
+package main
+
+import (
+    "github.com/gin-gonic/gin"
+    "net/http"
+)
+
+type CalificacionInput struct {
+    Name string `json:"name"`
+    Cal1 int    `json:"cal1"`
+    Cal2 int    `json:"cal2"`
+    Cal3 int    `json:"cal3"`
+}
+
+type CalificacionOutput struct {
+    Name     string  `json:"name"`
+    Promedio float64 `json:"promedio"`
+}
+
+func main() {
+    router := gin.Default()
+
+    // Ruta para calcular la calificación
+    router.POST("/calcularCalificacion", func(c *gin.Context) {
+        var input CalificacionInput
+
+        if err := c.ShouldBindJSON(&input); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
+
+        promedio := (float64(input.Cal1) + float64(input.Cal2) + float64(input.Cal3)) / 3.0
+
+        output := CalificacionOutput{
+            Name:     input.Name,
+            Promedio: promedio,
+        }
+
+        c.JSON(http.StatusOK, output)
+    })
+
+    // Iniciar el servidor en el puerto 8080
+    router.Run(":8080")
+}
